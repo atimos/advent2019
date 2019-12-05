@@ -17,7 +17,6 @@ pub type Result<T> = std::result::Result<T, Error>;
 const MAX_OPERATIONS: usize = 1000;
 
 pub fn run(program: &str) -> Result<String> {
-
     program
         .split(',')
         .map(str::parse)
@@ -42,7 +41,7 @@ pub fn run(program: &str) -> Result<String> {
                     None => return Err(Error::Eof),
                     Some(_) => unreachable!(),
                 };
-            dbg!(pos);
+                dbg!(pos);
                 pos += 4;
             }
             Err(Error::ToManyOperations(MAX_OPERATIONS))
