@@ -1,7 +1,7 @@
 pub fn step1() {
     let result = (245318..=765747)
         .map(|number| number.to_string().chars().collect::<Vec<char>>())
-        .filter(|digits| digits.windows(2).all(is_not_decr) && digits.windows(2).any(is_same))
+        .filter(|d| d.windows(2).all(is_not_decr) && d.windows(2).any(is_same))
         .count();
     dbg!(result);
 }
@@ -9,10 +9,7 @@ pub fn step1() {
 pub fn step2() {
     let result = (245318..=765747)
         .map(|number| number.to_string().chars().collect::<Vec<char>>())
-        .filter(|digits| {
-            digits.windows(2).all(is_not_decr)
-                && digits.iter().group().any(|group| group.len() == 2)
-        })
+        .filter(|d| d.windows(2).all(is_not_decr) && d.iter().group_count().any(|c| c == 2))
         .count();
     dbg!(result);
 }
@@ -31,38 +28,35 @@ fn is_same(numbers: &[char]) -> bool {
     }
 }
 
-impl<T> GroupIter for T where T: Iterator {}
+struct GroupCount<I: Iterator>(std::iter::Peekable<I>);
 
-struct Group<Iter: Iterator>(std::iter::Peekable<Iter>);
-
-impl<Iter: Iterator> Iterator for Group<Iter>
+impl<Iter: Iterator> Iterator for GroupCount<Iter>
 where
-    Iter::Item: std::cmp::PartialEq + std::marker::Copy,
+    Iter::Item: std::cmp::PartialEq,
 {
-    type Item = Vec<Iter::Item>;
+    type Item = usize;
 
     fn next(&mut self) -> Option<Self::Item> {
-        let mut group = Vec::new();
-        let mut last: Option<Iter::Item> = None;
+        let mut count = 1;
 
-        while let Some(item) = self.0.peek() {
-            if last == None || last == Some(*item) {
-                group.push(*item);
-                last = self.0.next();
-            } else {
-                break;
+        while let Some(item) = self.0.next() {
+            match self.0.peek() {
+                Some(next) if next == &item => count += 1,
+                _ => return Some(count),
             }
         }
 
-        last.map(|_| group)
+        None
     }
 }
 
-trait GroupIter: Iterator {
-    fn group(self) -> Group<Self>
+trait GroupCountIter: Iterator {
+    fn group_count(self) -> GroupCount<Self>
     where
         Self: Sized,
     {
-        Group(self.peekable())
+        GroupCount(self.peekable())
     }
 }
+
+impl<T> GroupCountIter for T where T: Iterator {}
