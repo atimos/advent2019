@@ -1,7 +1,8 @@
 pub fn step1() {
     let result = (245318..=765747)
         .map(|number| number.to_string().chars().collect::<Vec<char>>())
-        .filter(|d| d.windows(2).all(is_not_decr) && d.iter().group_count().any(|c| c > 1))
+        .filter(|d| d.windows(2).all(is_not_decr))
+        .filter(|d| d.iter().group_count().any(|c| c > 1))
         .count();
     dbg!(result);
 }
@@ -9,7 +10,8 @@ pub fn step1() {
 pub fn step2() {
     let result = (245318..=765747)
         .map(|number| number.to_string().chars().collect::<Vec<char>>())
-        .filter(|d| d.windows(2).all(is_not_decr) && d.iter().group_count().any(|c| c == 2))
+        .filter(|d| d.windows(2).all(is_not_decr))
+        .filter(|d| d.iter().group_count().any(|c| c == 2))
         .count();
     dbg!(result);
 }
