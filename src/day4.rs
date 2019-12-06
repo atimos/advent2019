@@ -1,7 +1,7 @@
 pub fn step1() {
     let result = (245318..=765747)
         .map(|number| number.to_string().chars().collect::<Vec<char>>())
-        .filter(|d| d.windows(2).all(is_not_decr) && d.windows(2).any(is_same))
+        .filter(|d| d.windows(2).all(is_not_decr) && d.iter().group_count().any(|c| c > 1))
         .count();
     dbg!(result);
 }
@@ -18,13 +18,6 @@ fn is_not_decr(numbers: &[char]) -> bool {
     match numbers {
         &[n1, n2] => n1 <= n2,
         _ => true,
-    }
-}
-
-fn is_same(numbers: &[char]) -> bool {
-    match numbers {
-        &[n1, n2] => n1 == n2,
-        _ => false,
     }
 }
 
