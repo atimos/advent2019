@@ -1,5 +1,3 @@
-use itertools::Itertools;
-
 pub fn step1() {
     let result = (245318..=765747)
         .map(|number| number.to_string().chars().collect::<Vec<char>>())
@@ -11,7 +9,10 @@ pub fn step1() {
 pub fn step2() {
     let result = (245318..=765747)
         .map(|number| number.to_string().chars().collect::<Vec<char>>())
-        .filter(|digits| digits.windows(2).all(is_not_decr) && has_grouped_same_two(digits))
+        .filter(|digits| {
+            digits.windows(2).all(is_not_decr)
+                && digits.iter().group().any(|group| group.len() == 2)
+        })
         .count();
     dbg!(result);
 }
@@ -30,25 +31,38 @@ fn is_same(numbers: &[char]) -> bool {
     }
 }
 
-fn has_grouped_same_two(numbers: &[char]) -> bool {
-    numbers
-        .iter()
-        .peekable()
-        .batching(|iter| {
-            let mut count = 1;
-            match iter.next() {
-                None => None,
-                Some(x) => {
-                    while let Some(y) = iter.peek() {
-                        if y != &x {
-                            return Some(count);
-                        }
-                        iter.next();
-                        count += 1;
-                    }
-                    Some(count)
-                }
+impl<T> GroupIter for T where T: Iterator {}
+
+struct Group<Iter: Iterator>(std::iter::Peekable<Iter>);
+
+impl<Iter: Iterator> Iterator for Group<Iter>
+where
+    Iter::Item: std::cmp::PartialEq + std::marker::Copy,
+{
+    type Item = Vec<Iter::Item>;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        let mut group = Vec::new();
+        let mut last: Option<Iter::Item> = None;
+
+        while let Some(item) = self.0.peek() {
+            if last == None || last == Some(*item) {
+                group.push(*item);
+                last = self.0.next();
+            } else {
+                break;
             }
-        })
-        .any(|count| count == 2)
+        }
+
+        last.map(|_| group)
+    }
+}
+
+trait GroupIter: Iterator {
+    fn group(self) -> Group<Self>
+    where
+        Self: Sized,
+    {
+        Group(self.peekable())
+    }
 }

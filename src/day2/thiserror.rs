@@ -1,3 +1,5 @@
+use joinery::Joinable;
+
 #[derive(Debug, PartialEq, thiserror::Error, displaydoc::Display)]
 pub enum Error {
     /// {0}
@@ -46,7 +48,7 @@ pub fn run(program: &str) -> Result<String> {
             }
             Err(Error::ToManyOperations(MAX_OPERATIONS))
         })
-        .map(|program| itertools::join(program.iter(), ","))
+        .map(|program| program.join_with(",").to_string())
 }
 
 fn apply(

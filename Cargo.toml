@@ -9,4 +9,4 @@ edition = "2018"
 [dependencies]
 thiserror = "1.0.6"
 displaydoc = "0.1"
-itertools = "0.8.2"
+joinery = "2.0.0"
